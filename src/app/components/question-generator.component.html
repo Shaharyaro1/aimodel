@@ -1,0 +1,110 @@
+<div class="component-container">
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">Error: {{ error }}</div>
+
+  <!-- Number of Questions Selector -->
+  <div class="form-group">
+    <label for="numberOfQuestions">Number of Questions:</label>
+    <select
+      id="numberOfQuestions"
+      [(ngModel)]="numberOfQuestions"
+      [disabled]="loading"
+    >
+      <option value="5">5 Questions</option>
+      <option value="10">10 Questions</option>
+      <option value="15">15 Questions</option>
+      <option value="20">20 Questions</option>
+    </select>
+  </div>
+
+  <!-- Input Tabs -->
+  <div class="input-tabs">
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'text'"
+      (click)="activeTab = 'text'"
+    >
+      Text Input
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'file'"
+      (click)="activeTab = 'file'"
+    >
+      File Upload
+    </button>
+  </div>
+
+  <!-- Text Input Section -->
+  <div class="input-section" *ngIf="activeTab === 'text'">
+    <textarea
+      id="textInput"
+      [(ngModel)]="textInput"
+      placeholder="Paste your text here..."
+      [disabled]="loading"
+    ></textarea>
+
+    <button
+      (click)="generateFromText()"
+      [disabled]="loading || !textInput.trim()"
+      class="generate-button"
+    >
+      {{ loading ? 'Generating...' : 'Generate Questions' }}
+    </button>
+  </div>
+
+  <!-- File Upload Section -->
+  <div class="input-section" *ngIf="activeTab === 'file'">
+    <div class="file-upload-area">
+      <input
+        type="file"
+        id="fileInput"
+        (change)="onFileSelected($event)"
+        accept=".txt,.pdf,.docx"
+        [disabled]="loading"
+        class="file-input"
+      />
+      <label for="fileInput" class="file-upload-label">
+        <span *ngIf="!selectedFile">Choose a file (.txt, .pdf, .docx)</span>
+        <span *ngIf="selectedFile">{{ selectedFile.name }}</span>
+      </label>
+    </div>
+
+    <button
+      (click)="generateFromFile()"
+      [disabled]="loading || !selectedFile"
+      class="generate-button"
+    >
+      {{ loading ? 'Generating...' : 'Generate Questions from File' }}
+    </button>
+  </div>
+
+  <!-- Generated Questions Display -->
+  <div *ngIf="generatedQuestions.length > 0" class="questions-container">
+    <h3>Generated Questions</h3>
+    <div
+      *ngFor="let question of generatedQuestions; let i = index"
+      class="question-item"
+    >
+      <div class="question-header">
+        <span class="question-number">Question {{ i + 1 }}</span>
+        <span class="question-type" [class]="'type-' + question.type">{{
+          question.type
+        }}</span>
+      </div>
+
+      <p class="question-text">{{ question.question }}</p>
+
+      <div *ngIf="question.options" class="options">
+        <div *ngFor="let option of question.options" class="option">
+          • {{ option }}
+        </div>
+      </div>
+    </div>
+
+    <button (click)="clearAll()" class="clear-button">Clear All</button>
+  </div>
+</div>
